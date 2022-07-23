@@ -24,6 +24,7 @@ import { Auth } from "../firebase";
 import * as EditPresetPopup from "../popups/edit-preset-popup";
 import * as EditTagPopup from "../popups/edit-tags-popup";
 import { navigate } from "../controllers/route-controller";
+import * as VideoAdPopup from "../popups/video-ad-popup";
 
 export let current: MonkeyTypes.CommandsGroup[] = [];
 
@@ -1212,30 +1213,38 @@ const commandsDifficulty: MonkeyTypes.CommandsGroup = {
 
 export const commandsEnableAds: MonkeyTypes.CommandsGroup = {
   title: "Set enable ads...",
-  configKey: "enableAds",
+  configKey: "ads",
   list: [
     {
       id: "setEnableAdsOff",
       display: "off",
       configValue: "off",
       exec: (): void => {
-        UpdateConfig.setEnableAds("off");
+        UpdateConfig.setAds("off");
       },
     },
     {
       id: "setEnableAdsOn",
-      display: "on",
-      configValue: "on",
+      display: "result",
+      configValue: "result",
       exec: (): void => {
-        UpdateConfig.setEnableAds("on");
+        UpdateConfig.setAds("result");
       },
     },
     {
-      id: "setEnableMax",
-      display: "sellout",
-      configValue: "max",
+      id: "setEnableOn",
+      display: "on",
+      configValue: "on",
       exec: (): void => {
-        UpdateConfig.setEnableAds("max");
+        UpdateConfig.setAds("on");
+      },
+    },
+    {
+      id: "setEnableSellout",
+      display: "sellout",
+      configValue: "sellout",
+      exec: (): void => {
+        UpdateConfig.setAds("sellout");
       },
     },
   ],
@@ -2456,7 +2465,9 @@ const commandsPractiseWords: MonkeyTypes.CommandsGroup = {
       noIcon: true,
       exec: (): void => {
         PractiseWords.init(true, false);
-        TestLogic.restart(false, false, undefined, true);
+        TestLogic.restart({
+          practiseMissed: true,
+        });
       },
     },
     {
@@ -2465,7 +2476,9 @@ const commandsPractiseWords: MonkeyTypes.CommandsGroup = {
       noIcon: true,
       exec: (): void => {
         PractiseWords.init(false, true);
-        TestLogic.restart(false, false, undefined, true);
+        TestLogic.restart({
+          practiseMissed: true,
+        });
       },
     },
     {
@@ -2474,7 +2487,9 @@ const commandsPractiseWords: MonkeyTypes.CommandsGroup = {
       noIcon: true,
       exec: (): void => {
         PractiseWords.init(true, true);
-        TestLogic.restart(false, false, undefined, true);
+        TestLogic.restart({
+          practiseMissed: true,
+        });
       },
     },
   ],
@@ -2518,7 +2533,9 @@ Misc.getChallengeList().then((challenges) => {
       exec: (): void => {
         navigate("/");
         ChallengeController.setup(challenge.name);
-        TestLogic.restart(false, true);
+        TestLogic.restart({
+          nosave: true,
+        });
       },
     });
   });
@@ -2919,6 +2936,15 @@ export const defaultCommands: MonkeyTypes.CommandsGroup = {
       subgroup: commandsEnableAds,
     },
     {
+      id: "watchVideoAd",
+      display: "Watch video ad",
+      alias: "support donate",
+      icon: "fa-ad",
+      exec: (): void => {
+        VideoAdPopup.show();
+      },
+    },
+    {
       id: "changeTheme",
       display: "Theme...",
       icon: "fa-palette",
@@ -3240,7 +3266,9 @@ export const defaultCommands: MonkeyTypes.CommandsGroup = {
       display: "Repeat test",
       icon: "fa-sync-alt",
       exec: (): void => {
-        TestLogic.restart(true);
+        TestLogic.restart({
+          withSameWordset: true,
+        });
       },
       available: (): boolean => {
         return TestUI.resultVisible;
